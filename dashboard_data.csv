@@ -1,0 +1,218 @@
+Country,Country Code,DCS (%),Available_Values,Missing_Values,Recent DCS (%),DCS Band,Region,Income Level
+Gibraltar,GIB,30.0,21,49,28.57,0–49.99%,Europe & Central Asia,High income
+British Virgin Islands,VGB,31.43,22,48,28.57,0–49.99%,Latin America & Caribbean ,High income
+St. Martin (French part),MAF,34.29,24,46,28.57,0–49.99%,Latin America & Caribbean ,High income
+"Korea, Dem. People's Rep.",PRK,42.86,30,40,42.86,0–49.99%,East Asia & Pacific,Low income
+Eritrea,ERI,51.43,36,34,42.86,50–69.99%,Sub-Saharan Africa ,Low income
+American Samoa,ASM,51.43,36,34,38.1,50–69.99%,East Asia & Pacific,High income
+Northern Mariana Islands,MNP,51.43,36,34,38.1,50–69.99%,East Asia & Pacific,High income
+Isle of Man,IMN,54.29,38,32,47.62,50–69.99%,Europe & Central Asia,High income
+Turks and Caicos Islands,TCA,57.14,40,30,57.14,50–69.99%,Latin America & Caribbean ,High income
+"Yemen, Rep.",YEM,58.57,41,29,42.86,50–69.99%,"Middle East, North Africa, Afghanistan & Pakistan",Low income
+Greenland,GRL,58.57,41,29,47.62,50–69.99%,Europe & Central Asia,High income
+Sint Maarten (Dutch part),SXM,61.43,43,27,57.14,50–69.99%,Latin America & Caribbean ,High income
+Faroe Islands,FRO,61.43,43,27,57.14,50–69.99%,Europe & Central Asia,High income
+Bermuda,BMU,61.43,43,27,57.14,50–69.99%,North America,High income
+Tuvalu,TUV,61.43,43,27,57.14,50–69.99%,East Asia & Pacific,Upper middle income
+Cayman Islands,CYM,64.29,45,25,57.14,50–69.99%,Latin America & Caribbean ,High income
+South Sudan,SSD,65.71,46,24,52.38,50–69.99%,Sub-Saharan Africa ,Low income
+Naoero,NRU,67.14,47,23,71.43,50–69.99%,East Asia & Pacific,High income
+Curacao,CUW,67.14,47,23,57.14,50–69.99%,Latin America & Caribbean ,High income
+Channel Islands,CHI,68.57,48,22,61.9,50–69.99%,Europe & Central Asia,High income
+Aruba,ABW,68.57,48,22,57.14,50–69.99%,Latin America & Caribbean ,High income
+Guam,GUM,70.0,49,21,52.38,50–69.99%,East Asia & Pacific,High income
+Monaco,MCO,70.0,49,21,71.43,50–69.99%,Europe & Central Asia,High income
+Virgin Islands (U.S.),VIR,70.0,49,21,52.38,50–69.99%,Latin America & Caribbean ,High income
+Liechtenstein,LIE,70.0,49,21,71.43,50–69.99%,Europe & Central Asia,High income
+Andorra,AND,71.43,50,20,71.43,70–89.99%,Europe & Central Asia,High income
+Marshall Islands,MHL,71.43,50,20,71.43,70–89.99%,East Asia & Pacific,Upper middle income
+Cuba,CUB,74.29,52,18,57.14,70–89.99%,Latin America & Caribbean ,Upper middle income
+Kosovo,XKX,74.29,52,18,71.43,70–89.99%,Europe & Central Asia,Upper middle income
+Turkmenistan,TKM,74.29,52,18,71.43,70–89.99%,Europe & Central Asia,Upper middle income
+Palau,PLW,75.71,53,17,85.71,70–89.99%,East Asia & Pacific,High income
+French Polynesia,PYF,75.71,53,17,71.43,70–89.99%,East Asia & Pacific,High income
+New Caledonia,NCL,77.14,54,16,71.43,70–89.99%,East Asia & Pacific,High income
+Syrian Arab Republic,SYR,78.57,55,15,52.38,70–89.99%,"Middle East, North Africa, Afghanistan & Pakistan",Low income
+San Marino,SMR,80.0,56,14,76.19,70–89.99%,Europe & Central Asia,High income
+"Micronesia, Fed. Sts.",FSM,81.43,57,13,76.19,70–89.99%,East Asia & Pacific,Upper middle income
+Puerto Rico (US),PRI,81.43,57,13,76.19,70–89.99%,Latin America & Caribbean ,High income
+"Somalia, Fed. Rep.",SOM,82.86,58,12,85.71,70–89.99%,Sub-Saharan Africa ,Low income
+Dominica,DMA,84.29,59,11,85.71,70–89.99%,Latin America & Caribbean ,Upper middle income
+Sudan,SDN,84.29,59,11,66.67,70–89.99%,Sub-Saharan Africa ,Low income
+St. Kitts and Nevis,KNA,84.29,59,11,80.95,70–89.99%,Latin America & Caribbean ,High income
+"Venezuela, RB",VEN,85.71,60,10,85.71,70–89.99%,Latin America & Caribbean ,Lower middle income
+Seychelles,SYC,85.71,60,10,85.71,70–89.99%,Sub-Saharan Africa ,High income
+Samoa,WSM,85.71,60,10,85.71,70–89.99%,East Asia & Pacific,Upper middle income
+Kiribati,KIR,85.71,60,10,85.71,70–89.99%,East Asia & Pacific,Lower middle income
+Grenada,GRD,85.71,60,10,85.71,70–89.99%,Latin America & Caribbean ,Upper middle income
+Antigua and Barbuda,ATG,85.71,60,10,85.71,70–89.99%,Latin America & Caribbean ,High income
+Myanmar,MMR,87.14,61,9,71.43,70–89.99%,East Asia & Pacific,Lower middle income
+"Congo, Dem. Rep.",COD,87.14,61,9,85.71,70–89.99%,Sub-Saharan Africa ,Low income
+Vanuatu,VUT,87.14,61,9,85.71,70–89.99%,East Asia & Pacific,Lower middle income
+Suriname,SUR,91.43,64,6,90.48,90–99.99%,Latin America & Caribbean ,Upper middle income
+Eswatini,SWZ,92.86,65,5,85.71,90–99.99%,Sub-Saharan Africa ,Lower middle income
+West Bank and Gaza,PSE,94.29,66,4,85.71,90–99.99%,"Middle East, North Africa, Afghanistan & Pakistan",Lower middle income
+Pakistan,PAK,95.71,67,3,90.48,90–99.99%,"Middle East, North Africa, Afghanistan & Pakistan",Lower middle income
+Ukraine,UKR,95.71,67,3,85.71,90–99.99%,Europe & Central Asia,Upper middle income
+Timor-Leste,TLS,95.71,67,3,85.71,90–99.99%,East Asia & Pacific,Lower middle income
+Argentina,ARG,95.71,67,3,100.0,90–99.99%,Latin America & Caribbean ,Upper middle income
+Barbados,BRB,95.71,67,3,95.24,90–99.99%,Latin America & Caribbean ,High income
+Zimbabwe,ZWE,97.14,68,2,90.48,90–99.99%,Sub-Saharan Africa ,Lower middle income
+Tunisia,TUN,97.14,68,2,90.48,90–99.99%,"Middle East, North Africa, Afghanistan & Pakistan",Lower middle income
+Central African Republic,CAF,97.14,68,2,100.0,90–99.99%,Sub-Saharan Africa ,Low income
+Botswana,BWA,98.57,69,1,95.24,90–99.99%,Sub-Saharan Africa ,Upper middle income
+Comoros,COM,98.57,69,1,100.0,90–99.99%,Sub-Saharan Africa ,Lower middle income
+Lebanon,LBN,98.57,69,1,95.24,90–99.99%,"Middle East, North Africa, Afghanistan & Pakistan",Lower middle income
+Estonia,EST,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Equatorial Guinea,GNQ,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Upper middle income
+"Egypt, Arab Rep.",EGY,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Lower middle income
+El Salvador,SLV,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Ecuador,ECU,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Dominican Republic,DOM,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Denmark,DNK,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Djibouti,DJI,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Lower middle income
+Croatia,HRV,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Cyprus,CYP,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Czechia,CZE,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Chile,CHL,100.0,70,0,100.0,100%,Latin America & Caribbean ,High income
+Colombia,COL,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Gabon,GAB,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Upper middle income
+"Gambia, The",GMB,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Fiji,FJI,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+Greece,GRC,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Guatemala,GTM,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Guinea-Bissau,GNB,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Guinea,GIN,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Haiti,HTI,100.0,70,0,100.0,100%,Latin America & Caribbean ,Lower middle income
+Honduras,HND,100.0,70,0,100.0,100%,Latin America & Caribbean ,Lower middle income
+"Hong Kong SAR, China",HKG,100.0,70,0,100.0,100%,East Asia & Pacific,High income
+Guyana,GUY,100.0,70,0,100.0,100%,Latin America & Caribbean ,High income
+Hungary,HUN,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Iceland,ISL,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+France,FRA,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Finland,FIN,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Ghana,GHA,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Germany,DEU,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Georgia,GEO,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Ethiopia,ETH,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Burundi,BDI,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Burkina Faso,BFA,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Bulgaria,BGR,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Brunei Darussalam,BRN,100.0,70,0,100.0,100%,East Asia & Pacific,High income
+Brazil,BRA,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Bosnia and Herzegovina,BIH,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Bhutan,BTN,100.0,70,0,100.0,100%,South Asia,Lower middle income
+Bolivia,BOL,100.0,70,0,100.0,100%,Latin America & Caribbean ,Lower middle income
+Belarus,BLR,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Belgium,BEL,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+China,CHN,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+Cambodia,KHM,100.0,70,0,100.0,100%,East Asia & Pacific,Lower middle income
+Chad,TCD,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Cameroon,CMR,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Canada,CAN,100.0,70,0,100.0,100%,North America,High income
+Cabo Verde,CPV,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Upper middle income
+Cote d'Ivoire,CIV,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Costa Rica,CRI,100.0,70,0,100.0,100%,Latin America & Caribbean ,High income
+"Congo, Rep.",COG,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Bahrain,BHR,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",High income
+Belize,BLZ,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Benin,BEN,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+"Bahamas, The",BHS,100.0,70,0,100.0,100%,Latin America & Caribbean ,High income
+Azerbaijan,AZE,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Bangladesh,BGD,100.0,70,0,100.0,100%,South Asia,Lower middle income
+Armenia,ARM,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Australia,AUS,100.0,70,0,100.0,100%,East Asia & Pacific,High income
+Austria,AUT,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Angola,AGO,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Algeria,DZA,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Upper middle income
+Afghanistan,AFG,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Low income
+Albania,ALB,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Mexico,MEX,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Mauritius,MUS,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Upper middle income
+Mauritania,MRT,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Malta,MLT,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",High income
+Maldives,MDV,100.0,70,0,100.0,100%,South Asia,Upper middle income
+Mali,MLI,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Malaysia,MYS,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+Malawi,MWI,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Lithuania,LTU,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Madagascar,MDG,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+"Macao SAR, China",MAC,100.0,70,0,100.0,100%,East Asia & Pacific,High income
+Luxembourg,LUX,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Liberia,LBR,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Libya,LBY,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Upper middle income
+Latvia,LVA,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Lesotho,LSO,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Jamaica,JAM,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Italy,ITA,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Lao PDR,LAO,100.0,70,0,100.0,100%,East Asia & Pacific,Lower middle income
+Kyrgyz Republic,KGZ,100.0,70,0,100.0,100%,Europe & Central Asia,Lower middle income
+"Korea, Rep.",KOR,100.0,70,0,100.0,100%,East Asia & Pacific,High income
+Kuwait,KWT,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",High income
+Kenya,KEN,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Kazakhstan,KAZ,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Japan,JPN,100.0,70,0,100.0,100%,East Asia & Pacific,High income
+Jordan,JOR,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Upper middle income
+Indonesia,IDN,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+India,IND,100.0,70,0,100.0,100%,South Asia,Lower middle income
+"Iran, Islamic Rep.",IRN,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Upper middle income
+Iraq,IRQ,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Upper middle income
+Ireland,IRL,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Israel,ISR,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",High income
+Qatar,QAT,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",High income
+Portugal,PRT,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Poland,POL,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Philippines,PHL,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+Paraguay,PRY,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Peru,PER,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Papua New Guinea,PNG,100.0,70,0,100.0,100%,East Asia & Pacific,Lower middle income
+Panama,PAN,100.0,70,0,100.0,100%,Latin America & Caribbean ,High income
+Nigeria,NGA,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Oman,OMN,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",High income
+North Macedonia,MKD,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Senegal,SEN,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Rwanda,RWA,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Sao Tome and Principe,STP,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Russian Federation,RUS,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Romania,ROU,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Solomon Islands,SLB,100.0,70,0,100.0,100%,East Asia & Pacific,Lower middle income
+Slovenia,SVN,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Slovak Republic,SVK,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Singapore,SGP,100.0,70,0,100.0,100%,East Asia & Pacific,High income
+Norway,NOR,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Nicaragua,NIC,100.0,70,0,100.0,100%,Latin America & Caribbean ,Lower middle income
+New Zealand,NZL,100.0,70,0,100.0,100%,East Asia & Pacific,High income
+Netherlands,NLD,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Niger,NER,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Morocco,MAR,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",Lower middle income
+Nepal,NPL,100.0,70,0,100.0,100%,South Asia,Lower middle income
+Namibia,NAM,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Mozambique,MOZ,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Montenegro,MNE,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Mongolia,MNG,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+Moldova,MDA,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Tanzania,TZA,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Tajikistan,TJK,100.0,70,0,100.0,100%,Europe & Central Asia,Lower middle income
+Switzerland,CHE,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Sweden,SWE,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+St. Vincent and the Grenadines,VCT,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+South Africa,ZAF,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Upper middle income
+Sri Lanka,LKA,100.0,70,0,100.0,100%,South Asia,Upper middle income
+St. Lucia,LCA,100.0,70,0,100.0,100%,Latin America & Caribbean ,Upper middle income
+Spain,ESP,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+Saudi Arabia,SAU,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",High income
+Sierra Leone,SLE,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Serbia,SRB,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Turkiye,TUR,100.0,70,0,100.0,100%,Europe & Central Asia,Upper middle income
+Trinidad and Tobago,TTO,100.0,70,0,100.0,100%,Latin America & Caribbean ,High income
+Tonga,TON,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+Thailand,THA,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+Uruguay,URY,100.0,70,0,100.0,100%,Latin America & Caribbean ,High income
+United States,USA,100.0,70,0,100.0,100%,North America,High income
+United Kingdom,GBR,100.0,70,0,100.0,100%,Europe & Central Asia,High income
+United Arab Emirates,ARE,100.0,70,0,100.0,100%,"Middle East, North Africa, Afghanistan & Pakistan",High income
+Uganda,UGA,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Low income
+Togo,TGO,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
+Viet Nam,VNM,100.0,70,0,100.0,100%,East Asia & Pacific,Upper middle income
+Uzbekistan,UZB,100.0,70,0,100.0,100%,Europe & Central Asia,Lower middle income
+Zambia,ZMB,100.0,70,0,100.0,100%,Sub-Saharan Africa ,Lower middle income
