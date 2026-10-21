@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 
 st.set_page_config(
     page_title="World Data Completeness",
@@ -9,46 +8,66 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------- DESIGN ----------
+# ---------------- DESIGN ----------------
 st.markdown("""
 <style>
 .stApp {
-    background-color: #10131f;
-    color: #f4f4f8;
+    background-color: #10131F;
+    color: #F5F5FA;
 }
 [data-testid="stSidebar"] {
-    background-color: #191d2d;
-}
-.block-container {
-    padding-top: 1.5rem;
-    padding-bottom: 2rem;
+    background-color: #191D2D;
 }
 [data-testid="stMetric"] {
-    background: #1c2234;
-    border: 1px solid #343b52;
-    padding: 16px;
+    background: #1C2234;
+    border: 1px solid #343B52;
+    padding: 15px;
     border-radius: 14px;
 }
 h1, h2, h3 {
-    color: #f7f3ff;
+    color: #F7F3FF;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- LOAD DATA ----------
+PALETTE = {
+    "Below 30%": "#E63946",
+    "30–59%": "#F6B5D2",
+    "60–79%": "#FF9F43",
+    "80–89%": "#9B5DE5",
+    "90–100%": "#4263EB"
+}
+
+BANDS = list(PALETTE.keys())
+
+
+def get_band(score):
+    if pd.isna(score):
+        return "Unknown"
+    if score < 30:
+        return "Below 30%"
+    if score < 60:
+        return "30–59%"
+    if score < 80:
+        return "60–79%"
+    if score < 90:
+        return "80–89%"
+    return "90–100%"
+
+
+# ---------------- LOAD DATA ----------------
 @st.cache_data
 def load_data():
     countries = pd.read_csv("dashboard_data.csv")
     yearly = pd.read_csv("yearly_scores.csv")
     indicators = pd.read_csv("indicator_availability.csv")
 
-    countries.columns = countries.columns.str.strip()
-    yearly.columns = yearly.columns.str.strip()
-    indicators.columns = indicators.columns.str.strip()
-
     for df in [countries, yearly, indicators]:
+        df.columns = df.columns.str.strip()
         if "Country Code" in df.columns:
-            df["Country Code"] = df["Country Code"].astype(str).str.upper().str.strip()
+            df["Country Code"] = (
+                df["Country Code"].astype(str).str.upper().str.strip()
+            )
 
     countries["DCS (%)"] = pd.to_numeric(
         countries["DCS (%)"], errors="coerce"
@@ -57,13 +76,13 @@ def load_data():
         countries["Recent DCS (%)"], errors="coerce"
     )
 
-    yearly["Year"] = pd.to_numeric(yearly["Year"], errors="coerce")
-    if "DCS (%)" in yearly.columns:
+    if "Year" in yearly:
+        yearly["Year"] = pd.to_numeric(yearly["Year"], errors="coerce")
+    if "DCS (%)" in yearly:
         yearly["DCS (%)"] = pd.to_numeric(
             yearly["DCS (%)"], errors="coerce"
         )
-
-    if "Value" in indicators.columns:
+    if "Value" in indicators:
         indicators["Value"] = pd.to_numeric(
             indicators["Value"], errors="coerce"
         )
@@ -73,61 +92,58 @@ def load_data():
 
 try:
     countries, yearly, indicators = load_data()
-except Exception as e:
+except Exception as error:
     st.error(
-        "Could not load the CSV files. Check that dashboard_data.csv, "
-        "yearly_scores.csv and indicator_availability.csv are in the "
-        "same GitHub folder as app.py."
+        "Could not load the CSV files. Make sure these files are in "
+        "the same GitHub folder as app.py: dashboard_data.csv, "
+        "yearly_scores.csv, indicator_availability.csv."
     )
-    st.exception(e)
+    st.exception(error)
     st.stop()
 
 
-# ---------- COLUMN DETECTION ----------
 def find_col(df, candidates):
-    for candidate in candidates:
-        if candidate in df.columns:
-            return candidate
-    return None
+    return next((c for c in candidates if c in df.columns), None)
 
 
 region_col = find_col(countries, ["Region", "Region Name"])
 income_col = find_col(countries, ["Income Level", "Income Group"])
-indicator_name_col = find_col(
+indicator_col = find_col(
     indicators, ["Indicator Name", "Indicator", "Indicator_Name"]
 )
 available_col = find_col(
     indicators, ["Available", "Is Available", "Availability"]
 )
-value_col = find_col(indicators, ["Value"])
-year_col = find_col(indicators, ["Year"])
 
-# ---------- SIDEBAR ----------
+countries["Completeness Band"] = countries["DCS (%)"].apply(get_band)
+
+# ---------------- SIDEBAR FILTERS ----------------
 st.sidebar.title("🌍 Data Explorer")
-st.sidebar.caption("Explore data availability across economies, 2015–2024.")
-st.sidebar.divider()
+st.sidebar.caption("Explore 217 economies and their data availability.")
 
-search = st.sidebar.text_input("🔎 Find a country")
+search = st.sidebar.text_input("🔎 Search country")
 
 filtered = countries.copy()
 
 if region_col:
-    regions = sorted(
-        filtered[region_col].dropna().astype(str).unique().tolist()
-    )
+    regions = sorted(filtered[region_col].dropna().astype(str).unique())
     selected_regions = st.sidebar.multiselect(
-        "Filter by region", regions, default=regions
+        "Region", regions, default=regions
     )
-    filtered = filtered[filtered[region_col].astype(str).isin(selected_regions)]
+    filtered = filtered[
+        filtered[region_col].astype(str).isin(selected_regions)
+    ]
 
 if income_col:
-    incomes = sorted(
-        filtered[income_col].dropna().astype(str).unique().tolist()
+    income_groups = sorted(
+        filtered[income_col].dropna().astype(str).unique()
     )
-    selected_incomes = st.sidebar.multiselect(
-        "Filter by income group", incomes, default=incomes
+    selected_income = st.sidebar.multiselect(
+        "Income group", income_groups, default=income_groups
     )
-    filtered = filtered[filtered[income_col].astype(str).isin(selected_incomes)]
+    filtered = filtered[
+        filtered[income_col].astype(str).isin(selected_income)
+    ]
 
 if search:
     filtered = filtered[
@@ -136,64 +152,48 @@ if search:
         )
     ]
 
-if filtered.empty:
-    st.sidebar.warning("No countries match those filters.")
-    st.stop()
+# Persist the clicked coverage band across reruns.
+if "coverage_band" not in st.session_state:
+    st.session_state.coverage_band = "All countries"
 
-country_options = sorted(filtered["Country"].dropna().astype(str).unique())
-default_country = (
-    "India" if "India" in country_options else country_options[0]
-)
-
-selected_country = st.sidebar.selectbox(
-    "Choose a country",
-    country_options,
-    index=country_options.index(default_country)
-)
-
-st.sidebar.divider()
-st.sidebar.markdown("### 🎨 Reading the map")
-st.sidebar.markdown("""
-- 🩷 **0–59%:** Low completeness
-- 🟠 **60–79%:** Moderate completeness
-- 🔴 **80–89%:** High, with gaps
-- 🔵 **90–100%:** Very high completeness
-""")
-st.sidebar.caption(
-    "DCS measures data availability, not data accuracy or trustworthiness."
-)
-
-# ---------- HEADER ----------
+# ---------------- HEADER ----------------
 st.title("🌐 World Data Completeness Dashboard")
-st.markdown(
-    "### How complete is the world's public development data?"
+st.write(
+    "Explore where World Bank indicator data is available, "
+    "where gaps remain, and how economies compare."
 )
 st.caption(
-    "World Bank indicators · 2015–2024 · "
-    "Explore completeness, compare economies, and find missing data."
+    "2015–2024 | Data Completeness Score (DCS) measures availability, "
+    "not accuracy or trustworthiness."
 )
 
-# ---------- OVERVIEW ----------
 mean_dcs = countries["DCS (%)"].mean()
-complete_count = (countries["DCS (%)"] == 100).sum()
-incomplete_count = countries["DCS (%)"].lt(100).sum()
+complete = int((countries["DCS (%)"] == 100).sum())
+incomplete = int((countries["DCS (%)"] < 100).sum())
 
-a, b, c, d = st.columns(4)
-a.metric("Economies analysed", f"{len(countries):,}")
-b.metric("Global average DCS", f"{mean_dcs:.1f}%")
-c.metric("Fully complete", f"{complete_count}")
-d.metric("With missing data", f"{incomplete_count}")
+m1, m2, m3, m4 = st.columns(4)
+m1.metric("Economies", len(countries))
+m2.metric("Global average DCS", f"{mean_dcs:.1f}%")
+m3.metric("100% complete", complete)
+m4.metric("With missing data", incomplete)
 
 st.divider()
 
-# ---------- MAP ----------
+# ---------------- CLICKABLE MAP ----------------
 st.subheader("🗺️ Global completeness map")
-st.write(
-    "Hover over a country to inspect its score. "
-    "Use the sidebar to filter countries and choose a profile."
+st.caption(
+    "Hover for country details. Click a country to open its profile."
 )
 
-map_data = filtered.dropna(subset=["Country Code", "DCS (%)"]).copy()
+map_data = filtered.copy()
+
+active_band = st.session_state.coverage_band
+if active_band != "All countries":
+    map_data = map_data[
+        map_data["Completeness Band"] == active_band
+    ]
+
+map_data = map_data.dropna(subset=["Country Code", "DCS (%)"])
 
 fig_map = px.choropleth(
     map_data,
@@ -205,307 +205,327 @@ fig_map = px.choropleth(
         "Country Code": True,
         "DCS (%)": ":.1f",
         "Available_Values": True,
-        "Missing_Values": True
+        "Missing_Values": True,
+        "Completeness Band": True
     },
     color_continuous_scale=[
-        [0.00, "#f6b5d2"],
-        [0.40, "#ff9f43"],
-        [0.65, "#ef476f"],
-        [0.82, "#4263eb"],
-        [1.00, "#42d6c5"]
+        [0.00, "#E63946"],
+        [0.30, "#F6B5D2"],
+        [0.60, "#FF9F43"],
+        [0.80, "#9B5DE5"],
+        [1.00, "#4263EB"]
     ],
     range_color=(0, 100),
     labels={
-        "DCS (%)": "Completeness (%)",
+        "DCS (%)": "Completeness",
         "Available_Values": "Available values",
         "Missing_Values": "Missing values"
     }
 )
 
 fig_map.update_geos(
+    projection_type="natural earth",
     showframe=False,
     showcoastlines=True,
-    coastlinecolor="#5a6279",
+    coastlinecolor="#687089",
     showland=True,
-    landcolor="#252b3d",
+    landcolor="#252B3D",
     showocean=True,
     oceancolor="#141827",
     showcountries=True,
-    countrycolor="#5a6279",
-    projection_type="natural earth"
+    countrycolor="#687089"
 )
 
 fig_map.update_layout(
-    paper_bgcolor="#10131f",
-    plot_bgcolor="#10131f",
-    font_color="#f4f4f8",
-    height=520,
+    paper_bgcolor="#10131F",
+    plot_bgcolor="#10131F",
+    font_color="#F5F5FA",
+    height=500,
     margin=dict(l=0, r=0, t=20, b=0),
     coloraxis_colorbar=dict(
         title="DCS (%)",
-        tickvals=[0, 20, 40, 60, 80, 100],
-        ticksuffix="%",
-        tickfont=dict(color="#f4f4f8")
+        tickvals=[0, 30, 60, 80, 90, 100],
+        ticksuffix="%"
     )
 )
 
-st.plotly_chart(fig_map, use_container_width=True)
+map_event = st.plotly_chart(
+    fig_map,
+    use_container_width=True,
+    key="world_map",
+    on_select="rerun",
+    selection_mode="points"
+)
 
-# ---------- SELECTED COUNTRY ----------
-country_row = countries[
-    countries["Country"].astype(str) == selected_country
-].iloc[0]
+# Update country selection from a map click.
+if map_event and map_event.selection.points:
+    clicked_point = map_event.selection.points[0]
+    clicked_code = clicked_point.get("location")
 
-country_code = str(country_row["Country Code"]).upper()
-country_yearly = yearly[
-    yearly["Country Code"] == country_code
-].copy()
+    if clicked_code:
+        matches = countries[
+            countries["Country Code"] == str(clicked_code).upper()
+        ]
+        if not matches.empty:
+            st.session_state["selected_country"] = matches.iloc[0]["Country"]
 
-country_indicators = indicators[
-    indicators["Country Code"] == country_code
-].copy()
-
+# ---------------- CLICKABLE COVERAGE PIE ----------------
 st.divider()
-st.header(f"📍 {selected_country} — Country Profile")
+st.subheader("🍩 How complete is the world's data?")
+st.caption(
+    "Click a slice to filter the country list and map. "
+    "Select the slice again or clear the filter to reset."
+)
 
-if region_col:
-    region_value = country_row.get(region_col, "Not available")
+band_counts = (
+    countries[countries["Completeness Band"].isin(BANDS)]
+    ["Completeness Band"]
+    .value_counts()
+    .reindex(BANDS, fill_value=0)
+    .rename_axis("Band")
+    .reset_index(name="Countries")
+)
+
+pie_fig = px.pie(
+    band_counts,
+    names="Band",
+    values="Countries",
+    hole=0.48,
+    color="Band",
+    color_discrete_map=PALETTE,
+    custom_data=["Band"]
+)
+
+pie_fig.update_traces(
+    textposition="inside",
+    textinfo="label+value+percent",
+    hovertemplate=(
+        "<b>%{label}</b><br>"
+        "Countries: %{value}<br>"
+        "Share: %{percent}<extra></extra>"
+    )
+)
+
+pie_fig.update_layout(
+    paper_bgcolor="#10131F",
+    font_color="#F5F5FA",
+    height=390,
+    margin=dict(l=10, r=10, t=20, b=20),
+    showlegend=False
+)
+
+pie_event = st.plotly_chart(
+    pie_fig,
+    use_container_width=True,
+    key="coverage_pie",
+    on_select="rerun",
+    selection_mode="points"
+)
+
+if pie_event and pie_event.selection.points:
+    point = pie_event.selection.points[0]
+    clicked_band = point.get("label")
+
+    if clicked_band in BANDS:
+        if st.session_state.coverage_band == clicked_band:
+            st.session_state.coverage_band = "All countries"
+        else:
+            st.session_state.coverage_band = clicked_band
+
+if st.session_state.coverage_band != "All countries":
+    st.info(f"Showing countries in the **{st.session_state.coverage_band}** band.")
+
+    if st.button("Clear completeness filter"):
+        st.session_state.coverage_band = "All countries"
+        st.rerun()
+
+# ---------------- COUNTRY LIST ----------------
+visible_countries = filtered.copy()
+
+if st.session_state.coverage_band != "All countries":
+    visible_countries = visible_countries[
+        visible_countries["Completeness Band"]
+        == st.session_state.coverage_band
+    ]
+
+st.markdown("#### Countries in this group")
+
+if visible_countries.empty:
+    st.warning("No countries match the current filters.")
 else:
-    region_value = "Not available"
+    st.dataframe(
+        visible_countries[
+            ["Country", "DCS (%)", "Available_Values",
+             "Missing_Values", "Completeness Band"]
+        ].sort_values("DCS (%)"),
+        use_container_width=True,
+        hide_index=True
+    )
 
-if income_col:
-    income_value = country_row.get(income_col, "Not available")
-else:
-    income_value = "Not available"
+# ---------------- COUNTRY PROFILE ----------------
+st.divider()
+st.header("📍 Country profile")
 
-st.caption(f"Region: {region_value}  ·  Income group: {income_value}")
+available_country_names = sorted(
+    visible_countries["Country"].dropna().astype(str).unique()
+)
 
-available_values = country_row.get("Available_Values", None)
-missing_values = country_row.get("Missing_Values", None)
+if not available_country_names:
+    st.info("Clear or adjust filters to view a country profile.")
+    st.stop()
 
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("Overall DCS", f"{country_row['DCS (%)']:.1f}%")
-m2.metric(
+if (
+    "selected_country" not in st.session_state
+    or st.session_state.selected_country not in available_country_names
+):
+    st.session_state.selected_country = (
+        "India" if "India" in available_country_names
+        else available_country_names[0]
+    )
+
+selected_country = st.sidebar.selectbox(
+    "Country profile",
+    available_country_names,
+    key="selected_country"
+)
+
+row = countries[countries["Country"] == selected_country].iloc[0]
+code = row["Country Code"]
+
+region = row.get(region_col, "Not available") if region_col else "Not available"
+income = row.get(income_col, "Not available") if income_col else "Not available"
+
+st.subheader(selected_country)
+st.caption(f"Region: {region}  ·  Income group: {income}")
+
+a, b, c, d = st.columns(4)
+a.metric("Overall DCS", f"{row['DCS (%)']:.1f}%")
+b.metric(
     "Recent DCS",
-    f"{country_row['Recent DCS (%)']:.1f}%"
-    if pd.notna(country_row["Recent DCS (%)"]) else "N/A"
+    f"{row['Recent DCS (%)']:.1f}%"
+    if pd.notna(row["Recent DCS (%)"]) else "N/A"
 )
-m3.metric(
-    "Available values",
-    f"{int(available_values)}" if pd.notna(available_values) else "N/A"
-)
-m4.metric(
-    "Missing values",
-    f"{int(missing_values)}" if pd.notna(missing_values) else "N/A"
-)
+c.metric("Available values", int(row["Available_Values"]))
+d.metric("Missing values", int(row["Missing_Values"]))
 
-# ---------- YEARLY TREND ----------
-st.subheader("📈 Completeness over time")
+# ---------------- YEARLY TREND ----------------
+st.subheader("📈 Annual completeness")
 
-if not country_yearly.empty and "DCS (%)" in country_yearly.columns:
+country_yearly = yearly[yearly["Country Code"] == code].copy()
+
+if not country_yearly.empty and "DCS (%)" in country_yearly:
     country_yearly = country_yearly.sort_values("Year")
 
-    fig_year = px.line(
+    line_fig = px.line(
         country_yearly,
         x="Year",
         y="DCS (%)",
         markers=True,
-        title=f"Annual DCS — {selected_country}",
-        color_discrete_sequence=["#ff7eb6"],
+        color_discrete_sequence=["#F6B5D2"],
         hover_data={"Year": True, "DCS (%)": ":.1f"}
     )
 
-    fig_year.add_hline(
+    line_fig.add_hline(
         y=mean_dcs,
         line_dash="dash",
-        line_color="#42d6c5",
-        annotation_text=f"All-country average: {mean_dcs:.1f}%"
+        line_color="#42D6C5",
+        annotation_text=f"Global average: {mean_dcs:.1f}%"
     )
 
-    fig_year.update_layout(
-        paper_bgcolor="#10131f",
-        plot_bgcolor="#191d2d",
-        font_color="#f4f4f8",
-        yaxis_title="Completeness (%)",
+    line_fig.update_layout(
+        paper_bgcolor="#10131F",
+        plot_bgcolor="#191D2D",
+        font_color="#F5F5FA",
+        yaxis_title="DCS (%)",
         xaxis_title="Year",
-        yaxis=dict(range=[0, 105], ticksuffix="%"),
-        margin=dict(l=10, r=10, t=60, b=10),
-        legend_title=""
+        yaxis=dict(range=[0, 105], ticksuffix="%")
     )
-    st.plotly_chart(fig_year, use_container_width=True)
+    st.plotly_chart(line_fig, use_container_width=True)
 else:
-    st.info("Yearly DCS data is not available for this country.")
+    st.info("Yearly scores are unavailable for this country.")
 
-# ---------- INDICATOR COMPLETENESS ----------
-st.subheader("🧩 Which indicators are missing data?")
+# ---------------- INDICATOR SUMMARY ----------------
+st.subheader("🧩 Indicator availability")
 
-if indicator_name_col and not country_indicators.empty:
-    country_indicators["Year"] = pd.to_numeric(
-        country_indicators["Year"], errors="coerce"
-    )
+country_indicators = indicators[
+    indicators["Country Code"] == code
+].copy()
 
+if indicator_col and not country_indicators.empty:
     if available_col:
         country_indicators["_available"] = (
             country_indicators[available_col]
             .astype(str).str.lower()
             .isin(["true", "1", "yes"])
         )
-    elif value_col:
-        country_indicators["_available"] = country_indicators[value_col].notna()
+    elif "Value" in country_indicators:
+        country_indicators["_available"] = (
+            country_indicators["Value"].notna()
+        )
     else:
-        country_indicators["_available"] = country_indicators.notna().any(axis=1)
+        country_indicators["_available"] = False
 
-    indicator_summary = (
-        country_indicators.groupby(indicator_name_col)
-        .agg(
-            Available_Years=("_available", "sum"),
-            Total_Years=("Year", "count")
+    if "Year" in country_indicators:
+        summary = (
+            country_indicators.groupby(indicator_col)
+            .agg(
+                Available_Years=("_available", "sum"),
+                Total_Years=("Year", "count")
+            )
+            .reset_index()
         )
-        .reset_index()
-    )
-    indicator_summary["Completeness (%)"] = (
-        indicator_summary["Available_Years"]
-        / indicator_summary["Total_Years"].replace(0, pd.NA)
-        * 100
-    )
-    indicator_summary["Missing_Years"] = (
-        indicator_summary["Total_Years"]
-        - indicator_summary["Available_Years"]
-    )
-
-    fig_ind = px.bar(
-        indicator_summary.sort_values("Completeness (%)"),
-        x="Completeness (%)",
-        y=indicator_name_col,
-        orientation="h",
-        color="Completeness (%)",
-        range_color=(0, 100),
-        color_continuous_scale=[
-            "#f6b5d2", "#ff9f43", "#ef476f", "#4263eb", "#42d6c5"
-        ],
-        hover_data={
-            "Available_Years": True,
-            "Missing_Years": True,
-            "Completeness (%)": ":.1f"
-        },
-        title="Availability by indicator, across observed years"
-    )
-    fig_ind.update_layout(
-        paper_bgcolor="#10131f",
-        plot_bgcolor="#191d2d",
-        font_color="#f4f4f8",
-        xaxis=dict(range=[0, 100], ticksuffix="%"),
-        yaxis_title="",
-        coloraxis_showscale=False,
-        margin=dict(l=10, r=10, t=60, b=10)
-    )
-    st.plotly_chart(fig_ind, use_container_width=True)
-
-    with st.expander("View indicator summary table"):
-        st.dataframe(
-            indicator_summary.rename(columns={
-                indicator_name_col: "Indicator"
-            }).sort_values("Completeness (%)", ascending=False),
-            use_container_width=True,
-            hide_index=True
+        summary["Missing_Years"] = (
+            summary["Total_Years"] - summary["Available_Years"]
         )
-else:
-    st.warning(
-        "Could not identify the indicator-name column. "
-        "Check the column names in indicator_availability.csv."
-    )
+        summary["Completeness (%)"] = (
+            summary["Available_Years"]
+            / summary["Total_Years"].replace(0, pd.NA) * 100
+        )
 
-# ---------- DETAILED RECORDS ----------
-st.subheader("🔎 Inspect individual records")
+        bar_fig = px.bar(
+            summary.sort_values("Completeness (%)"),
+            x="Completeness (%)",
+            y=indicator_col,
+            orientation="h",
+            color="Completeness (%)",
+            color_continuous_scale=[
+                "#E63946", "#F6B5D2", "#FF9F43", "#9B5DE5", "#4263EB"
+            ],
+            range_color=(0, 100),
+            hover_data=[
+                "Available_Years", "Missing_Years", "Total_Years"
+            ]
+        )
+        bar_fig.update_layout(
+            paper_bgcolor="#10131F",
+            plot_bgcolor="#191D2D",
+            font_color="#F5F5FA",
+            xaxis=dict(range=[0, 100], ticksuffix="%"),
+            yaxis_title="",
+            coloraxis_showscale=False
+        )
+        st.plotly_chart(bar_fig, use_container_width=True)
 
-if indicator_name_col and not country_indicators.empty:
-    indicator_choices = sorted(
-        country_indicators[indicator_name_col]
-        .dropna().astype(str).unique().tolist()
-    )
-    chosen_indicator = st.selectbox(
-        "Choose an indicator to inspect",
-        indicator_choices
-    )
+        with st.expander("View indicator summary"):
+            st.dataframe(
+                summary.rename(columns={indicator_col: "Indicator"}),
+                use_container_width=True,
+                hide_index=True
+            )
 
-    detail = country_indicators[
-        country_indicators[indicator_name_col].astype(str) == chosen_indicator
-    ].copy()
-
-    display_cols = [
-        c for c in [
-            "Country", "Country Code", indicator_name_col,
-            "Year", "Value", available_col
-        ]
-        if c and c in detail.columns
-    ]
-
-    detail = detail[display_cols].sort_values("Year")
-
-    st.dataframe(
-        detail.rename(columns={
-            indicator_name_col: "Indicator",
-            available_col: "Available"
-        }),
-        use_container_width=True,
-        hide_index=True
-    )
-
-# ---------- GLOBAL COMPARISON ----------
-st.divider()
-st.subheader("🌍 How does this country compare?")
-
-comparison = countries.copy()
-comparison["Difference from global average"] = (
-    comparison["DCS (%)"] - mean_dcs
-)
-comparison = comparison.sort_values("DCS (%)", ascending=False)
-
-st.write(
-    f"**{selected_country}:** {country_row['DCS (%)']:.1f}%  ·  "
-    f"**Global average:** {mean_dcs:.1f}%  ·  "
-    f"**Difference:** "
-    f"{country_row['DCS (%)'] - mean_dcs:+.1f} percentage points"
-)
-
-top, bottom = st.columns(2)
-
-with top:
-    st.markdown("#### Highest completeness")
-    st.dataframe(
-        comparison[["Country", "DCS (%)"]].head(5),
-        hide_index=True,
-        use_container_width=True
-    )
-
-with bottom:
-    st.markdown("#### Lowest completeness")
-    st.dataframe(
-        comparison[["Country", "DCS (%)"]].tail(5)
-        .sort_values("DCS (%)"),
-        hide_index=True,
-        use_container_width=True
-    )
-
-# ---------- METHODOLOGY ----------
-with st.expander("ℹ️ Methodology and interpretation"):
+# ---------------- METHODOLOGY ----------------
+with st.expander("ℹ️ How to interpret the scores"):
     st.markdown("""
-    **Data Completeness Score (DCS)** measures the share of expected
-    indicator-year values that are available.
-
-    - Overall score: available values divided by 70 expected values,
-      multiplied by 100.
-    - Annual score: available values divided by 7 expected indicators,
-      multiplied by 100.
-    - Recent DCS: availability across 2022–2024.
-    - Missing data is not automatically evidence of poor data quality.
-    - Completeness measures availability, not accuracy, reliability,
-      or trustworthiness.
-
-    Scores and comparisons are descriptive, not causal.
+    - **Overall DCS:** available indicator-year values out of 70 expected.
+    - **Annual DCS:** available indicators out of 7 expected each year.
+    - **Recent DCS:** completeness across 2022–2024.
+    - Missing values indicate unavailable data, not necessarily poor quality.
+    - A flat 100% line is valid when all seven indicators are available
+      in every year.
+    - The map colours use a fixed scale so countries can be compared fairly.
     """)
 
 st.caption(
-    "Data source: World Bank indicators. "
-    "Dashboard prepared for educational and analytical exploration."
+    "Source: World Bank indicators | Data completeness measures availability, "
+    "not accuracy or trustworthiness."
 )
