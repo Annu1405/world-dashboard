@@ -15,8 +15,10 @@ st.markdown("""
 .stApp { background:#10131F; color:#F5F5FA; }
 [data-testid="stSidebar"] { background:#191D2D; }
 [data-testid="stMetric"] {
-    background:#1C2234; border:1px solid #343B52;
-    padding:14px; border-radius:14px;
+    background:#1C2234;
+    border:1px solid #343B52;
+    padding:14px;
+    border-radius:14px;
 }
 h1,h2,h3 { color:#F7F3FF; }
 </style>
@@ -54,44 +56,74 @@ def find_col(df, choices):
     return None
 
 
-# ---------------- DATA ----------------
+# ---------------- LOAD DATA ----------------
 @st.cache_data
 def load_data():
-    c = pd.read_csv("dashboard_data.csv")
-    y = pd.read_csv("yearly_scores.csv")
-    i = pd.read_csv("indicator_availability.csv")
+    countries = pd.read_csv("dashboard_data.csv")
+    yearly = pd.read_csv("yearly_scores.csv")
+    indicators = pd.read_csv("indicator_availability.csv")
 
-    for df in [c, y, i]:
+    for df in [countries, yearly, indicators]:
         df.columns = df.columns.str.strip()
         if "Country Code" in df.columns:
             df["Country Code"] = (
                 df["Country Code"].astype(str).str.upper().str.strip()
             )
 
-    c["DCS (%)"] = pd.to_numeric(c["DCS (%)"], errors="coerce")
-    c["Recent DCS (%)"] = pd.to_numeric(
-        c["Recent DCS (%)"], errors="coerce"
-    )
+    for col in [
+        "DCS (%)", "Recent DCS (%)",
+        "Available_Values", "Missing_Values"
+    ]:
+        if col in countries.columns:
+            countries[col] = pd.to_numeric(
+                countries[col], errors="coerce"
+            )
 
-    if "Year" in y:
-        y["Year"] = pd.to_numeric(y["Year"], errors="coerce")
-    if "DCS (%)" in y:
-        y["DCS (%)"] = pd.to_numeric(y["DCS (%)"], errors="coerce")
-    if "Value" in i:
-        i["Value"] = pd.to_numeric(i["Value"], errors="coerce")
+    for df in [yearly, indicators]:
+        if "Year" in df.columns:
+            df["Year"] = pd.to_numeric(df["Year"], errors="coerce")
 
-    return c, y, i
+    if "DCS (%)" in yearly.columns:
+        yearly["DCS (%)"] = pd.to_numeric(
+            yearly["DCS (%)"], errors="coerce"
+        )
+
+    if "Value" in indicators.columns:
+        indicators["Value"] = pd.to_numeric(
+            indicators["Value"], errors="coerce"
+        )
+
+    return countries, yearly, indicators
 
 
 try:
     countries, yearly, indicators = load_data()
 except Exception as e:
     st.error(
-        "Could not load the CSV files. Check that dashboard_data.csv, "
-        "yearly_scores.csv and indicator_availability.csv are alongside app.py."
+        "Could not load the CSV files. Make sure these three files "
+        "are in the same repository folder as app.py: "
+        "dashboard_data.csv, yearly_scores.csv, "
+        "indicator_availability.csv."
     )
     st.exception(e)
     st.stop()
+
+required = ["Country", "Country Code", "DCS (%)"]
+missing = [col for col in required if col not in countries.columns]
+
+if missing:
+    st.error(f"Missing columns in dashboard_data.csv: {missing}")
+    st.stop()
+
+countries = countries.dropna(
+    subset=["Country", "Country Code", "DCS (%)"]
+).copy()
+
+countries["Country"] = countries["Country"].astype(str).str.strip()
+countries["Country Code"] = (
+    countries["Country Code"].astype(str).str.upper().str.strip()
+)
+countries["Completeness Band"] = countries["DCS (%)"].apply(get_band)
 
 region_col = find_col(countries, ["Region", "Region Name"])
 income_col = find_col(countries, ["Income Level", "Income Group"])
@@ -102,9 +134,6 @@ available_col = find_col(
     indicators, ["Available", "Is Available", "Availability"]
 )
 
-countries["Completeness Band"] = countries["DCS (%)"].apply(get_band)
-countries = countries.dropna(subset=["Country", "Country Code", "DCS (%)"])
-
 # ---------------- STATE ----------------
 if "selected_country" not in st.session_state:
     st.session_state.selected_country = (
@@ -112,15 +141,24 @@ if "selected_country" not in st.session_state:
         else countries.iloc[0]["Country"]
     )
 
+if "sidebar_country" not in st.session_state:
+    st.session_state.sidebar_country = st.session_state.selected_country
+
 if "coverage_band" not in st.session_state:
     st.session_state.coverage_band = "All countries"
+
+# Apply country selection before creating the sidebar widget.
+if "pending_country" in st.session_state:
+    pending = st.session_state.pop("pending_country")
+    if pending in countries["Country"].values:
+        st.session_state.selected_country = pending
+        st.session_state.sidebar_country = pending
 
 # ---------------- SIDEBAR ----------------
 st.sidebar.title("🌍 Data Explorer")
 st.sidebar.caption("Search, filter and explore economies.")
 
 search = st.sidebar.text_input("🔎 Search country")
-
 filtered = countries.copy()
 
 if region_col:
@@ -128,45 +166,50 @@ if region_col:
     chosen_regions = st.sidebar.multiselect(
         "Region", regions, default=regions
     )
-    filtered = filtered[filtered[region_col].astype(str).isin(chosen_regions)]
+    filtered = filtered[
+        filtered[region_col].astype(str).isin(chosen_regions)
+    ]
 
 if income_col:
     incomes = sorted(filtered[income_col].dropna().astype(str).unique())
     chosen_incomes = st.sidebar.multiselect(
         "Income group", incomes, default=incomes
     )
-    filtered = filtered[filtered[income_col].astype(str).isin(chosen_incomes)]
+    filtered = filtered[
+        filtered[income_col].astype(str).isin(chosen_incomes)
+    ]
 
 if search:
     filtered = filtered[
-        filtered["Country"].str.contains(search, case=False, na=False)
+        filtered["Country"].str.contains(
+            search, case=False, na=False, regex=False
+        )
     ]
 
 if filtered.empty:
     st.warning("No countries match these filters.")
     st.stop()
 
-# Native Streamlit selectbox provides searchable country suggestions.
-country_options = sorted(filtered["Country"].astype(str).unique())
+country_options = sorted(filtered["Country"].unique())
 
-if st.session_state.selected_country not in country_options:
-    st.session_state.selected_country = (
+if st.session_state.sidebar_country not in country_options:
+    st.session_state.sidebar_country = (
         "India" if "India" in country_options else country_options[0]
     )
 
 st.sidebar.selectbox(
     "Choose a country (type to search)",
     country_options,
-    key="selected_country"
+    key="sidebar_country"
 )
+st.session_state.selected_country = st.session_state.sidebar_country
 
 st.sidebar.divider()
 st.sidebar.markdown("### 🎨 Map colour guide")
 for band, colour in COLORS.items():
     if band != "Unknown":
         st.sidebar.markdown(
-            f'<span style="color:{colour};font-size:20px">●</span> '
-            f'{band}',
+            f'<span style="color:{colour};font-size:20px">●</span> {band}',
             unsafe_allow_html=True
         )
 st.sidebar.caption("DCS measures availability, not accuracy.")
@@ -191,9 +234,123 @@ k4.metric("With missing data", int((countries["DCS (%)"] < 100).sum()))
 
 st.divider()
 
-# ---------------- PIE CHART AND COUNTRY LIST ----------------
+# =========================================================
+# 1. WORLD MAP FIRST
+# =========================================================
+st.subheader("🗺️ Interactive world map")
+st.caption(
+    "Hover for details. Click a country to update its profile. "
+    "The selected country is outlined in white."
+)
+
+map_data = filtered.copy()
+if st.session_state.coverage_band != "All countries":
+    map_data = map_data[
+        map_data["Completeness Band"] == st.session_state.coverage_band
+    ]
+
+if map_data.empty:
+    st.warning("No countries match the current filters and score group.")
+else:
+    selected_rows = countries[
+        countries["Country"] == st.session_state.selected_country
+    ]
+    selected_code = (
+        selected_rows.iloc[0]["Country Code"]
+        if not selected_rows.empty else None
+    )
+
+    fig_map = px.choropleth(
+        map_data,
+        locations="Country Code",
+        locationmode="ISO-3",
+        color="DCS (%)",
+        hover_name="Country",
+        hover_data={
+            "Country Code": True,
+            "DCS (%)": ":.1f",
+            "Completeness Band": True
+        },
+        color_continuous_scale=[
+            [0.00, "#E63946"],
+            [0.30, "#F6B5D2"],
+            [0.60, "#FF9F43"],
+            [0.80, "#9B5DE5"],
+            [1.00, "#4263EB"]
+        ],
+        range_color=(0, 100),
+        labels={"DCS (%)": "Completeness"}
+    )
+
+    if selected_code and selected_code in map_data["Country Code"].values:
+        fig_map.add_trace(go.Choropleth(
+            locations=[selected_code],
+            z=[1],
+            locationmode="ISO-3",
+            colorscale=[
+                [0, "rgba(0,0,0,0)"],
+                [1, "rgba(0,0,0,0)"]
+            ],
+            showscale=False,
+            marker_line_color="#FFFFFF",
+            marker_line_width=2.5,
+            hoverinfo="skip",
+            showlegend=False
+        ))
+
+    fig_map.update_geos(
+        projection_type="natural earth",
+        showframe=False,
+        showcoastlines=True,
+        coastlinecolor="#687089",
+        showland=True,
+        landcolor="#252B3D",
+        showocean=True,
+        oceancolor="#141827",
+        showcountries=True,
+        countrycolor="#687089"
+    )
+    fig_map.update_layout(
+        paper_bgcolor="#10131F",
+        plot_bgcolor="#10131F",
+        font_color="#F5F5FA",
+        height=500,
+        margin=dict(l=0, r=0, t=20, b=0),
+        coloraxis_colorbar=dict(
+            title="DCS (%)",
+            tickvals=[0, 30, 60, 80, 90, 100],
+            ticksuffix="%"
+        )
+    )
+
+    map_event = st.plotly_chart(
+        fig_map,
+        use_container_width=True,
+        key="world_map",
+        on_select="rerun",
+        selection_mode="points"
+    )
+
+    if map_event and map_event.selection.points:
+        point = map_event.selection.points[0]
+        clicked_code = point.get("location")
+
+        if clicked_code:
+            match = countries[
+                countries["Country Code"] == str(clicked_code).upper()
+            ]
+            if not match.empty:
+                clicked_country = match.iloc[0]["Country"]
+                if clicked_country != st.session_state.selected_country:
+                    st.session_state["pending_country"] = clicked_country
+                    st.rerun()
+
+# =========================================================
+# 2. PIE CHART AND COUNTRY LIST
+# =========================================================
+st.divider()
 st.subheader("🍩 Global completeness groups")
-st.caption("Click a slice to display countries in that score range.")
+st.caption("Click a slice to see the countries in that score range.")
 
 band_counts = (
     countries[countries["Completeness Band"].isin(BANDS)]
@@ -210,17 +367,20 @@ pie = px.pie(
     values="Countries",
     hole=0.48,
     color="Completeness Band",
-    color_discrete_map=COLORS
+    color_discrete_map=COLORS,
+    category_orders={"Completeness Band": BANDS}
 )
 pie.update_traces(
     textinfo="label+value+percent",
-    hovertemplate="<b>%{label}</b><br>Countries: %{value}<br>"
-                  "Share: %{percent}<extra></extra>"
+    hovertemplate=(
+        "<b>%{label}</b><br>Countries: %{value}<br>"
+        "Share: %{percent}<extra></extra>"
+    )
 )
 pie.update_layout(
     paper_bgcolor="#10131F",
     font_color="#F5F5FA",
-    height=390,
+    height=410,
     margin=dict(l=10, r=10, t=25, b=10),
     showlegend=False
 )
@@ -236,28 +396,32 @@ with pie_col:
         selection_mode="points"
     )
 
+if pie_event and pie_event.selection.points:
+    point = pie_event.selection.points[0]
+    band_clicked = point.get("label")
+
+    if band_clicked not in BANDS:
+        index = point.get("point_index", point.get("point_number"))
+        if index is not None and 0 <= index < len(band_counts):
+            band_clicked = band_counts.iloc[index]["Completeness Band"]
+
+    if band_clicked in BANDS:
+        previous_band = st.session_state.get("last_pie_band")
+        if band_clicked != previous_band:
+            st.session_state.coverage_band = band_clicked
+            st.session_state.last_pie_band = band_clicked
+
 with list_col:
     st.markdown("#### Countries in selected group")
-
-    if pie_event and pie_event.selection.points:
-        point = pie_event.selection.points[0]
-        band_clicked = point.get("label")
-
-        if band_clicked in BANDS:
-            if st.session_state.coverage_band == band_clicked:
-                st.session_state.coverage_band = "All countries"
-            else:
-                st.session_state.coverage_band = band_clicked
-
     current_band = st.session_state.coverage_band
 
     if current_band == "All countries":
-        st.info("Choose a pie slice to see its countries here.")
+        st.info("Click a pie slice to see its countries.")
     else:
         st.markdown(f"**{current_band}**")
         group = countries[
             countries["Completeness Band"] == current_band
-        ].sort_values("DCS (%)")
+        ].sort_values(["DCS (%)", "Country"])
 
         st.caption(f"{len(group)} countries in this group")
 
@@ -265,132 +429,33 @@ with list_col:
             country_to_open = st.selectbox(
                 "Select a country from this group",
                 group["Country"].tolist(),
-                key="pie_country_choice"
+                key=f"pie_country_{current_band}"
             )
 
-            if st.button("Open this country", use_container_width=True):
-                st.session_state.selected_country = country_to_open
+            if st.button("Open this country", key="open_pie_country",
+                         use_container_width=True):
+                st.session_state["pending_country"] = country_to_open
                 st.rerun()
 
-        if st.button("Clear pie filter"):
-            st.session_state.coverage_band = "All countries"
-            st.rerun()
+    if st.button("Clear pie filter", key="clear_pie_filter",
+                 use_container_width=True):
+        st.session_state.coverage_band = "All countries"
+        st.session_state.pop("last_pie_band", None)
+        st.rerun()
 
-# ---------------- MAP ----------------
+# =========================================================
+# 3. COUNTRY PROFILE
+# =========================================================
 st.divider()
-st.subheader("🗺️ Interactive world map")
-st.caption(
-    "Hover for details. Click a country to update its profile below. "
-    "The selected country is outlined in white."
-)
 
-map_data = filtered.copy()
-if st.session_state.coverage_band != "All countries":
-    map_data = map_data[
-        map_data["Completeness Band"] == st.session_state.coverage_band
-    ]
-
-if map_data.empty:
-    st.warning("No countries are available in this filtered map.")
-    st.stop()
-
-selected_row = countries[
+country_matches = countries[
     countries["Country"] == st.session_state.selected_country
 ]
-selected_code = (
-    selected_row.iloc[0]["Country Code"]
-    if not selected_row.empty else None
-)
+if country_matches.empty:
+    st.warning("The selected country is not available in the dataset.")
+    st.stop()
 
-fig_map = px.choropleth(
-    map_data,
-    locations="Country Code",
-    locationmode="ISO-3",
-    color="DCS (%)",
-    hover_name="Country",
-    hover_data={
-        "Country Code": True,
-        "DCS (%)": ":.1f",
-        "Available_Values": True,
-        "Missing_Values": True,
-        "Completeness Band": True
-    },
-    color_continuous_scale=[
-        [0.00, "#E63946"],
-        [0.30, "#F6B5D2"],
-        [0.60, "#FF9F43"],
-        [0.80, "#9B5DE5"],
-        [1.00, "#4263EB"]
-    ],
-    range_color=(0, 100),
-    labels={"DCS (%)": "Completeness"}
-)
-
-# Add an outline around the selected country.
-# Transparent fill preserves the original choropleth colour.
-if selected_code and selected_code in map_data["Country Code"].values:
-    outline = go.Choropleth(
-        locations=[selected_code],
-        z=[1],
-        locationmode="ISO-3",
-        colorscale=[[0, "rgba(0,0,0,0)"], [1, "rgba(0,0,0,0)"]],
-        showscale=False,
-        marker_line_color="#FFFFFF",
-        marker_line_width=3,
-        hoverinfo="skip",
-        showlegend=False
-    )
-    fig_map.add_trace(outline)
-
-fig_map.update_geos(
-    projection_type="natural earth",
-    showframe=False,
-    showcoastlines=True,
-    coastlinecolor="#687089",
-    showland=True,
-    landcolor="#252B3D",
-    showocean=True,
-    oceancolor="#141827",
-    showcountries=True,
-    countrycolor="#687089"
-)
-fig_map.update_layout(
-    paper_bgcolor="#10131F",
-    plot_bgcolor="#10131F",
-    font_color="#F5F5FA",
-    height=500,
-    margin=dict(l=0, r=0, t=20, b=0),
-    coloraxis_colorbar=dict(
-        title="DCS (%)",
-        tickvals=[0, 30, 60, 80, 90, 100],
-        ticksuffix="%"
-    )
-)
-
-map_event = st.plotly_chart(
-    fig_map,
-    use_container_width=True,
-    key="world_map",
-    on_select="rerun",
-    selection_mode="points"
-)
-
-if map_event and map_event.selection.points:
-    clicked = map_event.selection.points[0]
-    clicked_code = clicked.get("location")
-    if clicked_code:
-        match = countries[
-            countries["Country Code"] == str(clicked_code).upper()
-        ]
-        if not match.empty:
-            st.session_state.selected_country = match.iloc[0]["Country"]
-            st.rerun()
-
-# ---------------- COUNTRY PROFILE ----------------
-st.divider()
-country = countries[
-    countries["Country"] == st.session_state.selected_country
-].iloc[0]
+country = country_matches.iloc[0]
 code = country["Country Code"]
 
 st.header(f"📍 {country['Country']} — Country Profile")
@@ -401,20 +466,26 @@ st.caption(f"Region: {region} · Income group: {income}")
 
 a, b, c, d = st.columns(4)
 a.metric("Overall DCS", f"{country['DCS (%)']:.1f}%")
-b.metric(
-    "Recent DCS",
-    f"{country['Recent DCS (%)']:.1f}%"
-    if pd.notna(country["Recent DCS (%)"]) else "N/A"
-)
-c.metric("Available values", int(country["Available_Values"]))
-d.metric("Missing values", int(country["Missing_Values"]))
 
-# ---------------- YEARLY TREND ----------------
+recent = country.get("Recent DCS (%)", float("nan"))
+b.metric("Recent DCS", f"{recent:.1f}%" if pd.notna(recent) else "N/A")
+
+available_values = country.get("Available_Values", float("nan"))
+missing_values = country.get("Missing_Values", float("nan"))
+c.metric("Available values", int(available_values) if pd.notna(available_values) else "N/A")
+d.metric("Missing values", int(missing_values) if pd.notna(missing_values) else "N/A")
+
+# =========================================================
+# 4. YEARLY TREND
+# =========================================================
 st.subheader("📈 Annual completeness")
 country_yearly = yearly[yearly["Country Code"] == code].copy()
 
 if not country_yearly.empty and "DCS (%)" in country_yearly.columns:
-    country_yearly = country_yearly.sort_values("Year")
+    country_yearly = country_yearly.dropna(
+        subset=["Year", "DCS (%)"]
+    ).sort_values("Year")
+
     line = px.line(
         country_yearly,
         x="Year",
@@ -437,21 +508,23 @@ if not country_yearly.empty and "DCS (%)" in country_yearly.columns:
         xaxis_title="Year",
         yaxis_title="DCS (%)"
     )
-    st.plotly_chart(line, use_container_width=True)
+    st.plotly_chart(line, use_container_width=True, key="yearly_trend")
 else:
-    st.info("Yearly scores unavailable.")
+    st.info("Yearly scores are unavailable for this country.")
 
-# ---------------- INDICATORS ----------------
+# =========================================================
+# 5. INDICATOR AVAILABILITY
+# =========================================================
 st.subheader("🧩 Indicator availability")
 country_indicators = indicators[indicators["Country Code"] == code].copy()
 
-if indicator_col and not country_indicators.empty and "Year" in country_indicators:
+if indicator_col and not country_indicators.empty and "Year" in country_indicators.columns:
     if available_col:
         country_indicators["_available"] = (
-            country_indicators[available_col].astype(str).str.lower()
-            .isin(["true", "1", "yes"])
+            country_indicators[available_col]
+            .astype(str).str.lower().isin(["true", "1", "yes"])
         )
-    elif "Value" in country_indicators:
+    elif "Value" in country_indicators.columns:
         country_indicators["_available"] = country_indicators["Value"].notna()
     else:
         country_indicators["_available"] = False
@@ -464,9 +537,7 @@ if indicator_col and not country_indicators.empty and "Year" in country_indicato
         )
         .reset_index()
     )
-    summary["Missing_Years"] = (
-        summary["Total_Years"] - summary["Available_Years"]
-    )
+    summary["Missing_Years"] = summary["Total_Years"] - summary["Available_Years"]
     summary["Completeness (%)"] = (
         summary["Available_Years"]
         / summary["Total_Years"].replace(0, pd.NA) * 100
@@ -490,7 +561,7 @@ if indicator_col and not country_indicators.empty and "Year" in country_indicato
         yaxis_title="",
         coloraxis_showscale=False
     )
-    st.plotly_chart(bar, use_container_width=True)
+    st.plotly_chart(bar, use_container_width=True, key="indicator_chart")
 
     with st.expander("View indicator summary"):
         st.dataframe(
@@ -498,11 +569,15 @@ if indicator_col and not country_indicators.empty and "Year" in country_indicato
             use_container_width=True,
             hide_index=True
         )
+else:
+    st.info("Indicator-level data is unavailable for this country.")
 
-# ---------------- COMPARATOR ----------------
+# =========================================================
+# 6. HIGHEST AND LOWEST COMPARATOR
+# =========================================================
 st.divider()
 st.header("⚖️ Country comparator")
-st.caption("Compare the most complete country with the country having the lowest score.")
+st.caption("Compare the most complete country with the lowest-scoring country.")
 
 left, right = st.columns(2)
 
@@ -517,11 +592,15 @@ with right:
     st.metric("DCS", f"{worst_country['DCS (%)']:.1f}%")
 
 gap = best_country["DCS (%)"] - worst_country["DCS (%)"]
-st.info(f"The gap between the highest and lowest scores is **{gap:.1f} percentage points**.")
+st.info(
+    f"The gap between the highest and lowest scores is "
+    f"**{gap:.1f} percentage points**."
+)
 
 with st.expander("ℹ️ Methodology"):
     st.markdown("""
-    - Overall DCS = available values divided by 70 expected indicator-year values.
+    - Overall DCS = available values divided by 70 expected
+      indicator-year values.
     - Annual DCS = available indicators divided by 7 expected indicators.
     - Recent DCS covers 2022–2024.
     - Missing data does not automatically mean poor-quality data.
